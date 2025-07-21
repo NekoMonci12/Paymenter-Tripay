@@ -213,4 +213,53 @@ class Tripay extends Gateway
         } 
         return response('OK', 200);
     }
+
+    public function canUseGateway($items, $type)
+    {
+        $totalAmount = 0;
+
+        // Determine if items is an array or collection
+        if (is_array($items)) {
+            foreach ($items as $item) {
+                if (is_object($item->price)) {
+                    $price = isset($item->price->price) ? floatval($item->price->price) : 0;
+                } else {
+                    $price = isset($item->price) ? floatval($item->price) : 0;
+                }
+                $quantity = isset($item->quantity) ? intval($item->quantity) : 1;
+                $totalAmount += $price * $quantity;
+            }
+        } elseif ($items instanceof \Illuminate\Support\Collection) {
+            foreach ($items as $item) {
+                if (is_object($item->price)) {
+                    $price = isset($item->price->price) ? floatval($item->price->price) : 0;
+                } else {
+                    $price = isset($item->price) ? floatval($item->price) : 0;
+                }
+                $quantity = isset($item->quantity) ? intval($item->quantity) : 1;
+                $totalAmount += $price * $quantity;
+            }
+        } elseif (is_object($items) && property_exists($items, 'items')) {
+            // In case items is an object with an 'items' property
+            foreach ($items->items as $item) {
+                if (is_object($item->price)) {
+                    $price = isset($item->price->price) ? floatval($item->price->price) : 0;
+                } else {
+                    $price = isset($item->price) ? floatval($item->price) : 0;
+                }
+                $quantity = isset($item->quantity) ? intval($item->quantity) : 1;
+                $totalAmount += $price * $quantity;
+            }
+        } else {
+            // fallback if items is a single item or unknown
+            return false;
+        }
+
+        // Check total against threshold
+        if ($totalAmount < 1000) {
+            return false;
+        }
+
+        return true;
+    }
 }

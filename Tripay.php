@@ -53,6 +53,45 @@ class Tripay extends Gateway
                 'required' => true,
             ],
             [
+                'name' => 'tripay_method',
+                'label' => 'Payment Method',
+                'type' => 'select',
+                'default' => 'QRIS',
+                'description' => 'Select the payment method.',
+                'required' => true,
+                'options' => [
+                    // Virtual Account
+                    'MANDIRIVA' => 'Mandiri Virtual Account',
+                    'BCAVA' => 'BCA Virtual Account',
+                    'BNIVA' => 'BNI Virtual Account',
+                    'BRIVA' => 'BRI Virtual Account',
+                    'PERMATAVA' => 'Permata Virtual Account',
+                    'CIMBVA' => 'CIMB Niaga Virtual Account',
+                    'MUAMALATVA' => 'Bank Muamalat Virtual Account',
+                    'BSIVA' => 'BSI Virtual Account',
+                    'MYBVA' => 'Maybank Virtual Account',
+                    'OCBCVA' => 'OCBC NISP Virtual Account',
+                    'DANAMONVA' => 'Bank Danamon Virtual Account',
+
+                    // E-Wallet
+                    'OVO' => 'OVO E-wallet',
+                    'DANA' => 'DANA E-wallet',
+                    'LINKAJA' => 'LinkAja E-wallet',
+                    'SHOPEEPAY' => 'ShopeePay E-wallet',
+                    'QRIS' => 'QRIS - Universal QR Payment',
+                    'QRIS2' => 'QRIS2 - QRIS by ShopeePay',
+                    'QRISC' => 'QRIS Corporate',
+
+                    // Convenience Store / Retail Outlet
+                    'ALFAMART' => 'Alfamart Payment',
+                    'INDOMARET' => 'Indomaret Payment',
+
+                    // Others
+                    'KREDIVO' => 'Kredivo Paylater',
+                    'AKULAKU' => 'Akulaku Paylater',
+                ],
+            ],
+            [
                 'name' => 'sandbox',
                 'label' => 'Enable Sandbox Mode',
                 'type' => 'checkbox',
@@ -74,6 +113,7 @@ class Tripay extends Gateway
         $apiKey = $this->config('api_key');
         $privateKey = $this->config('private_key');
         $merchantCode = $this->config('merchant_code');
+        $tripayMethod = $this->config('tripay_method');
 
         // Generate merchant_ref
         $merchantRef = $orderId;
@@ -109,7 +149,7 @@ class Tripay extends Gateway
         }
         // Build data payload for request
         $data = [
-            'method' => 'QRIS2',
+            'method' => $tripayMethod,
             'merchant_ref' => $merchantRef,
             'amount' => round($total, 2),
             'customer_name' => $invoice->customer_name ?? 'Customer',
